@@ -1,7 +1,7 @@
 name: Build security database staging
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 jobs:
   build:
@@ -15,37 +15,37 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+    - uses: actions/checkout@v3
+    - uses: actions/setup-go@v3
 
-      - id: auth
-        name: 'Authenticate to Google Cloud'
-        uses: google-github-actions/auth@v0
-        with:
-          workload_identity_provider: "projects/567187841907/locations/global/workloadIdentityPools/staging-shared-9bd2/providers/staging-shared-gha"
-          service_account: "staging-images-ci@staging-images-183e.iam.gserviceaccount.com"
+    - id: auth
+      name: 'Authenticate to Google Cloud'
+      uses: google-github-actions/auth@v0
+      with:
+        workload_identity_provider: "projects/567187841907/locations/global/workloadIdentityPools/staging-shared-9bd2/providers/staging-shared-gha"
+        service_account: "staging-images-ci@staging-images-183e.iam.gserviceaccount.com"
 
-      - uses: google-github-actions/setup-gcloud@v0
-        with:
-          project_id: staging-images-183e
-          version: 399.0.0
+    - uses: google-github-actions/setup-gcloud@v0
+      with:
+        project_id: staging-images-183e
+        version: 399.0.0
 
-      - name: 'Check that GCloud is properly configured'
-        run: |
-          gcloud info
-          gcloud --quiet alpha storage ls
+    - name: 'Check that GCloud is properly configured'
+      run: |
+        gcloud info
+        gcloud --quiet alpha storage ls
 
-      - name: 'Build wolfi-secdb'
-        run: |
-          git clone https://github.com/chainguard-dev/wolfi-secdb
-          pushd wolfi-secdb
-          go build
-          popd
+    - name: 'Build wolfi-secdb'
+      run: |
+        git clone https://github.com/chainguard-dev/wolfi-secdb
+        pushd wolfi-secdb
+        go build
+        popd
 
-      - name: 'Generate security database'
-        run: |
-          ./wolfi-secdb/wolfi-secdb generate . --repo-name os
+    - name: 'Generate security database'
+      run: |
+        ./wolfi-secdb/wolfi-secdb generate . --repo-name os
 
-      - name: 'Upload the security database to a bucket'
-        run: |
-          gcloud --quiet alpha storage cp --recursive ${{ github.workspace }}/security.json gs://wolfi-registry-destination/os/
+    - name: 'Upload the security database to a bucket'
+      run: |
+        gcloud --quiet alpha storage cp --recursive ${{ github.workspace }}/security.json gs://wolfi-registry-destination/os/

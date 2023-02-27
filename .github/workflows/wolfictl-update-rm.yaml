@@ -2,9 +2,7 @@ name: Wolfictl Update From Release Monitor
 
 on:
   # Triggers the workflow daily at 4:30pm UTC
-  schedule:
-    - cron: "30 16 * * *"
-
+  workflow_dispatch: {}
 permissions:
   contents: write
   pull-requests: write
